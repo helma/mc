@@ -1,0 +1,404 @@
+   1               		.file	"sr165.c"
+   2               	__SREG__ = 0x3f
+   3               	__SP_H__ = 0x3e
+   4               	__SP_L__ = 0x3d
+   5               	__CCP__  = 0x34
+   6               	__tmp_reg__ = 0
+   7               	__zero_reg__ = 1
+   8               		.global __do_copy_data
+   9               		.global __do_clear_bss
+  12               		.text
+  13               	.Ltext0:
+  89               		.section	.text.sr165_init,"ax",@progbits
+  91               	.global	sr165_init
+  93               	sr165_init:
+  94               		.stabd	46,0,0
+   0:sr165.c       **** #include "app.h"
+   1:sr165.c       **** #include "common.h"
+   2:sr165.c       **** #include "sr165.h"
+   3:sr165.c       **** 
+   4:sr165.c       **** #define SR165_DELAY() { asm("nop"); asm("nop"); asm("nop"); }
+   5:sr165.c       **** static inline void sr165_clk(void) {
+   6:sr165.c       ****   CLEAR_BIT8(SR165_DATA_PORT, SR165_CLK);
+   7:sr165.c       ****   SR165_DELAY();
+   8:sr165.c       ****   SET_BIT8(SR165_DATA_PORT, SR165_CLK);
+   9:sr165.c       ****   SR165_DELAY();
+  10:sr165.c       **** }
+  11:sr165.c       **** 
+  12:sr165.c       **** static inline void sr165_rst(void) {
+  13:sr165.c       ****   CLEAR_BIT8(SR165_DATA_PORT, SR165_SHLOAD);
+  14:sr165.c       ****   SR165_DELAY();
+  15:sr165.c       ****   SET_BIT8(SR165_DATA_PORT, SR165_SHLOAD);
+  16:sr165.c       ****   SR165_DELAY();
+  17:sr165.c       **** }  
+  18:sr165.c       **** 
+  19:sr165.c       **** void sr165_init(void) {
+  96               	.LM0:
+  97               	.LFBB1:
+  98               	/* prologue: function */
+  99               	/* frame size = 0 */
+  20:sr165.c       ****   SR165_DDR_PORT |= _BV(SR165_SHLOAD) | _BV(SR165_CLK);
+ 101               	.LM1:
+ 102 0000 81B3      		in r24,49-32
+ 103 0002 806C      		ori r24,lo8(-64)
+ 104 0004 81BB      		out 49-32,r24
+  21:sr165.c       ****   CLEAR_BIT8(SR165_DDR_PORT, SR165_OUT);
+ 106               	.LM2:
+ 107 0006 8D98      		cbi 49-32,5
+  22:sr165.c       ****   CLEAR_BIT8(SR165_DATA_PORT, SR165_OUT);
+ 109               	.LM3:
+ 110 0008 9598      		cbi 50-32,5
+  23:sr165.c       ****   SET_BIT8(SR165_DATA_PORT, SR165_CLK);
+ 112               	.LM4:
+ 113 000a 979A      		sbi 50-32,7
+  24:sr165.c       ****   SET_BIT8(SR165_DATA_PORT, SR165_SHLOAD);
+ 115               	.LM5:
+ 116 000c 969A      		sbi 50-32,6
+ 117               	/* epilogue start */
+  25:sr165.c       **** }
+ 119               	.LM6:
+ 120 000e 0895      		ret
+ 122               	.Lscope1:
+ 124               		.stabd	78,0,0
+ 125               		.section	.text.sr165_read,"ax",@progbits
+ 127               	.global	sr165_read
+ 129               	sr165_read:
+ 130               		.stabd	46,0,0
+  26:sr165.c       **** 
+  27:sr165.c       **** uint8_t sr165_read(void) {
+ 132               	.LM7:
+ 133               	.LFBB2:
+ 134               	/* prologue: function */
+ 135               	/* frame size = 0 */
+ 136               	.LBB12:
+ 137               	.LBB13:
+  14:sr165.c       ****   CLEAR_BIT8(SR165_DATA_PORT, SR165_SHLOAD);
+ 139               	.LM8:
+ 140 0000 9698      		cbi 50-32,6
+  15:sr165.c       ****   SR165_DELAY();
+ 142               	.LM9:
+ 143               	/* #APP */
+ 144               	 ;  15 "sr165.c" 1
+ 145 0002 0000      		nop
+ 146               	 ;  0 "" 2
+ 147               	 ;  15 "sr165.c" 1
+ 148 0004 0000      		nop
+ 149               	 ;  0 "" 2
+ 150               	 ;  15 "sr165.c" 1
+ 151 0006 0000      		nop
+ 152               	 ;  0 "" 2
+  16:sr165.c       ****   SET_BIT8(SR165_DATA_PORT, SR165_SHLOAD);
+ 154               	.LM10:
+ 155               	/* #NOAPP */
+ 156 0008 969A      		sbi 50-32,6
+  17:sr165.c       ****   SR165_DELAY();
+ 158               	.LM11:
+ 159               	/* #APP */
+ 160               	 ;  17 "sr165.c" 1
+ 161 000a 0000      		nop
+ 162               	 ;  0 "" 2
+ 163               	 ;  17 "sr165.c" 1
+ 164 000c 0000      		nop
+ 165               	 ;  0 "" 2
+ 166               	 ;  17 "sr165.c" 1
+ 167 000e 0000      		nop
+ 168               	 ;  0 "" 2
+ 169               	/* #NOAPP */
+ 170 0010 20E0      		ldi r18,lo8(0)
+ 171 0012 30E0      		ldi r19,lo8(0)
+ 172               	.L4:
+ 173               	.LBE13:
+ 174               	.LBE12:
+  28:sr165.c       ****   sr165_rst();
+  29:sr165.c       ****   uint8_t res = 0;
+  30:sr165.c       ****   uint8_t i = 0;
+  31:sr165.c       ****   for (i = 0; i < 8; i++) {
+  32:sr165.c       ****     res <<= 1;
+  33:sr165.c       ****     res |= IS_BIT_SET8(SR165_PIN_PORT, SR165_OUT);
+ 176               	.LM12:
+ 177 0014 80B3      		in r24,48-32
+ 178 0016 220F      		lsl r18
+ 179 0018 90E0      		ldi r25,lo8(0)
+ 180 001a 45E0      		ldi r20,5
+ 181 001c 9695      	1:	lsr r25
+ 182 001e 8795      		ror r24
+ 183 0020 4A95      		dec r20
+ 184 0022 01F4      		brne 1b
+ 185 0024 8170      		andi r24,lo8(1)
+ 186 0026 282B      		or r18,r24
+ 187               	.LBB14:
+ 188               	.LBB15:
+   7:sr165.c       ****   CLEAR_BIT8(SR165_DATA_PORT, SR165_CLK);
+ 190               	.LM13:
+ 191 0028 9798      		cbi 50-32,7
+   8:sr165.c       ****   SR165_DELAY();
+ 193               	.LM14:
+ 194               	/* #APP */
+ 195               	 ;  8 "sr165.c" 1
+ 196 002a 0000      		nop
+ 197               	 ;  0 "" 2
+ 198               	 ;  8 "sr165.c" 1
+ 199 002c 0000      		nop
+ 200               	 ;  0 "" 2
+ 201               	 ;  8 "sr165.c" 1
+ 202 002e 0000      		nop
+ 203               	 ;  0 "" 2
+   9:sr165.c       ****   SET_BIT8(SR165_DATA_PORT, SR165_CLK);
+ 205               	.LM15:
+ 206               	/* #NOAPP */
+ 207 0030 979A      		sbi 50-32,7
+  10:sr165.c       ****   SR165_DELAY();
+ 209               	.LM16:
+ 210               	/* #APP */
+ 211               	 ;  10 "sr165.c" 1
+ 212 0032 0000      		nop
+ 213               	 ;  0 "" 2
+ 214               	 ;  10 "sr165.c" 1
+ 215 0034 0000      		nop
+ 216               	 ;  0 "" 2
+ 217               	 ;  10 "sr165.c" 1
+ 218 0036 0000      		nop
+ 219               	 ;  0 "" 2
+ 220               	/* #NOAPP */
+ 221               	.LBE15:
+ 222               	.LBE14:
+  32:sr165.c       ****   for (i = 0; i < 8; i++) {
+ 224               	.LM17:
+ 225 0038 3F5F      		subi r19,lo8(-(1))
+ 226 003a 3830      		cpi r19,lo8(8)
+ 227 003c 01F4      		brne .L4
+  34:sr165.c       ****     sr165_clk();
+  35:sr165.c       ****   }
+  36:sr165.c       **** 
+  37:sr165.c       ****   return res;
+  38:sr165.c       **** }
+ 229               	.LM18:
+ 230 003e 822F      		mov r24,r18
+ 231               	/* epilogue start */
+ 232 0040 0895      		ret
+ 237               	.Lscope2:
+ 239               		.stabd	78,0,0
+ 240               		.section	.text.sr165_read_norst,"ax",@progbits
+ 242               	.global	sr165_read_norst
+ 244               	sr165_read_norst:
+ 245               		.stabd	46,0,0
+  39:sr165.c       **** 
+  40:sr165.c       **** uint8_t sr165_read_norst(void) {
+ 247               	.LM19:
+ 248               	.LFBB3:
+ 249               	/* prologue: function */
+ 250               	/* frame size = 0 */
+ 252               	.LM20:
+ 253 0000 20E0      		ldi r18,lo8(0)
+ 254 0002 30E0      		ldi r19,lo8(0)
+ 255               	.L8:
+  41:sr165.c       ****   uint8_t res = 0;
+  42:sr165.c       ****   uint8_t i = 0;
+  43:sr165.c       ****   for (i = 0; i < 8; i++) {
+  44:sr165.c       ****     res <<= 1;
+  45:sr165.c       ****     res |= IS_BIT_SET8(SR165_PIN_PORT, SR165_OUT);
+ 257               	.LM21:
+ 258 0004 80B3      		in r24,48-32
+ 259 0006 220F      		lsl r18
+ 260 0008 90E0      		ldi r25,lo8(0)
+ 261 000a 55E0      		ldi r21,5
+ 262 000c 9695      	1:	lsr r25
+ 263 000e 8795      		ror r24
+ 264 0010 5A95      		dec r21
+ 265 0012 01F4      		brne 1b
+ 266 0014 8170      		andi r24,lo8(1)
+ 267 0016 282B      		or r18,r24
+ 268               	.LBB16:
+ 269               	.LBB17:
+   7:sr165.c       ****   CLEAR_BIT8(SR165_DATA_PORT, SR165_CLK);
+ 271               	.LM22:
+ 272 0018 9798      		cbi 50-32,7
+   8:sr165.c       ****   SR165_DELAY();
+ 274               	.LM23:
+ 275               	/* #APP */
+ 276               	 ;  8 "sr165.c" 1
+ 277 001a 0000      		nop
+ 278               	 ;  0 "" 2
+ 279               	 ;  8 "sr165.c" 1
+ 280 001c 0000      		nop
+ 281               	 ;  0 "" 2
+ 282               	 ;  8 "sr165.c" 1
+ 283 001e 0000      		nop
+ 284               	 ;  0 "" 2
+   9:sr165.c       ****   SET_BIT8(SR165_DATA_PORT, SR165_CLK);
+ 286               	.LM24:
+ 287               	/* #NOAPP */
+ 288 0020 979A      		sbi 50-32,7
+  10:sr165.c       ****   SR165_DELAY();
+ 290               	.LM25:
+ 291               	/* #APP */
+ 292               	 ;  10 "sr165.c" 1
+ 293 0022 0000      		nop
+ 294               	 ;  0 "" 2
+ 295               	 ;  10 "sr165.c" 1
+ 296 0024 0000      		nop
+ 297               	 ;  0 "" 2
+ 298               	 ;  10 "sr165.c" 1
+ 299 0026 0000      		nop
+ 300               	 ;  0 "" 2
+ 301               	/* #NOAPP */
+ 302               	.LBE17:
+ 303               	.LBE16:
+  44:sr165.c       ****   for (i = 0; i < 8; i++) {
+ 305               	.LM26:
+ 306 0028 3F5F      		subi r19,lo8(-(1))
+ 307 002a 3830      		cpi r19,lo8(8)
+ 308 002c 01F4      		brne .L8
+  46:sr165.c       ****     sr165_clk();
+  47:sr165.c       ****   }
+  48:sr165.c       **** 
+  49:sr165.c       ****   return res;
+  50:sr165.c       **** }
+ 310               	.LM27:
+ 311 002e 822F      		mov r24,r18
+ 312               	/* epilogue start */
+ 313 0030 0895      		ret
+ 318               	.Lscope3:
+ 320               		.stabd	78,0,0
+ 321               		.section	.text.sr165_read16,"ax",@progbits
+ 323               	.global	sr165_read16
+ 325               	sr165_read16:
+ 326               		.stabd	46,0,0
+  51:sr165.c       **** 
+  52:sr165.c       **** 
+  53:sr165.c       **** uint16_t sr165_read16(void) {
+ 328               	.LM28:
+ 329               	.LFBB4:
+ 330               	/* prologue: function */
+ 331               	/* frame size = 0 */
+ 332               	.LBB18:
+ 333               	.LBB19:
+  14:sr165.c       ****   CLEAR_BIT8(SR165_DATA_PORT, SR165_SHLOAD);
+ 335               	.LM29:
+ 336 0000 9698      		cbi 50-32,6
+  15:sr165.c       ****   SR165_DELAY();
+ 338               	.LM30:
+ 339               	/* #APP */
+ 340               	 ;  15 "sr165.c" 1
+ 341 0002 0000      		nop
+ 342               	 ;  0 "" 2
+ 343               	 ;  15 "sr165.c" 1
+ 344 0004 0000      		nop
+ 345               	 ;  0 "" 2
+ 346               	 ;  15 "sr165.c" 1
+ 347 0006 0000      		nop
+ 348               	 ;  0 "" 2
+  16:sr165.c       ****   SET_BIT8(SR165_DATA_PORT, SR165_SHLOAD);
+ 350               	.LM31:
+ 351               	/* #NOAPP */
+ 352 0008 969A      		sbi 50-32,6
+  17:sr165.c       ****   SR165_DELAY();
+ 354               	.LM32:
+ 355               	/* #APP */
+ 356               	 ;  17 "sr165.c" 1
+ 357 000a 0000      		nop
+ 358               	 ;  0 "" 2
+ 359               	 ;  17 "sr165.c" 1
+ 360 000c 0000      		nop
+ 361               	 ;  0 "" 2
+ 362               	 ;  17 "sr165.c" 1
+ 363 000e 0000      		nop
+ 364               	 ;  0 "" 2
+ 365               	/* #NOAPP */
+ 366 0010 20E0      		ldi r18,lo8(0)
+ 367 0012 30E0      		ldi r19,hi8(0)
+ 368 0014 40E0      		ldi r20,lo8(0)
+ 369               	.L12:
+ 370               	.LBE19:
+ 371               	.LBE18:
+  54:sr165.c       ****   sr165_rst();
+  55:sr165.c       ****   uint16_t res = 0;
+  56:sr165.c       ****   uint8_t i = 0;
+  57:sr165.c       ****   for (i = 0; i < 16; i++) {
+  58:sr165.c       ****     res <<= 1;
+ 373               	.LM33:
+ 374 0016 220F      		lsl r18
+ 375 0018 331F      		rol r19
+  59:sr165.c       ****     res |= IS_BIT_SET8(SR165_PIN_PORT, SR165_OUT);
+ 377               	.LM34:
+ 378 001a 80B3      		in r24,48-32
+ 379 001c 90E0      		ldi r25,lo8(0)
+ 380 001e 65E0      		ldi r22,5
+ 381 0020 9695      	1:	lsr r25
+ 382 0022 8795      		ror r24
+ 383 0024 6A95      		dec r22
+ 384 0026 01F4      		brne 1b
+ 385 0028 8170      		andi r24,lo8(1)
+ 386 002a 9070      		andi r25,hi8(1)
+ 387 002c 282B      		or r18,r24
+ 388 002e 392B      		or r19,r25
+ 389               	.LBB20:
+ 390               	.LBB21:
+   7:sr165.c       ****   CLEAR_BIT8(SR165_DATA_PORT, SR165_CLK);
+ 392               	.LM35:
+ 393 0030 9798      		cbi 50-32,7
+   8:sr165.c       ****   SR165_DELAY();
+ 395               	.LM36:
+ 396               	/* #APP */
+ 397               	 ;  8 "sr165.c" 1
+ 398 0032 0000      		nop
+ 399               	 ;  0 "" 2
+ 400               	 ;  8 "sr165.c" 1
+ 401 0034 0000      		nop
+ 402               	 ;  0 "" 2
+ 403               	 ;  8 "sr165.c" 1
+ 404 0036 0000      		nop
+ 405               	 ;  0 "" 2
+   9:sr165.c       ****   SET_BIT8(SR165_DATA_PORT, SR165_CLK);
+ 407               	.LM37:
+ 408               	/* #NOAPP */
+ 409 0038 979A      		sbi 50-32,7
+  10:sr165.c       ****   SR165_DELAY();
+ 411               	.LM38:
+ 412               	/* #APP */
+ 413               	 ;  10 "sr165.c" 1
+ 414 003a 0000      		nop
+ 415               	 ;  0 "" 2
+ 416               	 ;  10 "sr165.c" 1
+ 417 003c 0000      		nop
+ 418               	 ;  0 "" 2
+ 419               	 ;  10 "sr165.c" 1
+ 420 003e 0000      		nop
+ 421               	 ;  0 "" 2
+ 422               	/* #NOAPP */
+ 423               	.LBE21:
+ 424               	.LBE20:
+  58:sr165.c       ****   for (i = 0; i < 16; i++) {
+ 426               	.LM39:
+ 427 0040 4F5F      		subi r20,lo8(-(1))
+ 428 0042 4031      		cpi r20,lo8(16)
+ 429 0044 01F4      		brne .L12
+  60:sr165.c       ****     sr165_clk();
+  61:sr165.c       ****   }
+  62:sr165.c       **** 
+  63:sr165.c       ****   return res;
+  64:sr165.c       **** }
+ 431               	.LM40:
+ 432 0046 C901      		movw r24,r18
+ 433               	/* epilogue start */
+ 434 0048 0895      		ret
+ 439               	.Lscope4:
+ 441               		.stabd	78,0,0
+ 442               		.text
+ 444               	.Letext0:
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 sr165.c
+     /tmp/cciKSolU.s:2      *ABS*:000000000000003f __SREG__
+     /tmp/cciKSolU.s:3      *ABS*:000000000000003e __SP_H__
+     /tmp/cciKSolU.s:4      *ABS*:000000000000003d __SP_L__
+     /tmp/cciKSolU.s:5      *ABS*:0000000000000034 __CCP__
+     /tmp/cciKSolU.s:6      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/cciKSolU.s:7      *ABS*:0000000000000001 __zero_reg__
+     /tmp/cciKSolU.s:93     .text.sr165_init:0000000000000000 sr165_init
+     /tmp/cciKSolU.s:129    .text.sr165_read:0000000000000000 sr165_read
+     /tmp/cciKSolU.s:244    .text.sr165_read_norst:0000000000000000 sr165_read_norst
+     /tmp/cciKSolU.s:325    .text.sr165_read16:0000000000000000 sr165_read16
+
+UNDEFINED SYMBOLS
+__do_copy_data
+__do_clear_bss

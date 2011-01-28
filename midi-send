@@ -1,0 +1,3 @@
+#!/bin/sh
+
+./tools/mididuino/midi-send -bvsd -I 0x41 -i hw:1,0,0 -o hw:1,0,0 $1
